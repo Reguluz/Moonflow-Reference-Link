@@ -1,15 +1,43 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
+using Moonflow.Core;
 using Moonflow.MFAssetTools.MFRefLink;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Windows;
+using Directory = System.IO.Directory;
 using Object = UnityEngine.Object;
 
 public class MFRefLinkCore
 {
+    private static int updateCount;
     private static MFRefLinkCache _cache;
+    private static bool _onRefProcessing;
+    
+    [InitializeOnLoadMethod]
+    public static void InitPlugin()
+    {
+        var targetGroup = EditorUserBuildSettings.selectedBuildTargetGroup;
+        string defineSymbol = "MF_REF_LINK";
+        string currData = PlayerSettings.GetScriptingDefineSymbolsForGroup( targetGroup );
+        if( !currData.Contains( defineSymbol ) )
+        {
+            if( string.IsNullOrEmpty( currData ) )
+            {
+                PlayerSettings.SetScriptingDefineSymbolsForGroup( targetGroup , defineSymbol );
+            }
+            else
+            {
+                if( !currData[ currData.Length - 1 ].Equals( ';' ) )
+                {
+                    currData += ';';
+                }
+                currData += defineSymbol;
+                PlayerSettings.SetScriptingDefineSymbolsForGroup( targetGroup , currData );
+            }
+        }
+    }
 
     public static MFRefLinkData GetRefData(string guid)
     {
@@ -21,8 +49,29 @@ public class MFRefLinkCore
         return GetRefData(guid);
     }
 
+    [MenuItem("Moonflow/Utility/RefLink/Setting/Enable Auto Update")]
+    public static void EnableAutoUpdate()
+    {
+        //unity editor callback: after asset import
+        AssetDatabase.importPackageCompleted += AutoUpdate;
+    }
+    [MenuItem("Moonflow/Utility/RefLink/Setting/Disable Auto Update")]
+    public static void DisableAutoUpdate()
+    {
+        AssetDatabase.importPackageCompleted -= AutoUpdate;
+        AssetDatabase.importPackageCompleted -= AutoUpdate;
+        AssetDatabase.importPackageCompleted -= AutoUpdate;
+        AssetDatabase.importPackageCompleted -= AutoUpdate;
+        AssetDatabase.importPackageCompleted -= AutoUpdate;
+    }
+    
+    public static void AutoUpdate(string packageName)
+    {
+        ManualCollect();
+    }
+
     [MenuItem("Moonflow/Utility/RefLink/Collect")]
-    public static void InitLink()
+    public static void ManualCollect()
     {
         //check if cache exists
         _cache = MFRefLinkCache.LoadCache();
@@ -33,67 +82,134 @@ public class MFRefLinkCore
             CacheCollection();
             MFRefLinkCache.SaveCache(_cache);
         }
-        
+        else
+        {
+            updateCount = 0;
+            CacheCollection(true);
+            Debug.Log($"UpdateCount: {updateCount.ToString()}");
+        }
+        TotalLinkForce();
     }
 
     public static void CacheCollection(bool UpdateMode = false)
     {
-        //editor progress bar
-        EditorUtility.DisplayCancelableProgressBar("Cache Collection", "Collecting...", 0);
         //get all assets
         var assets = AssetDatabase.FindAssets("t:object", new[] {"Assets", "Packages"});
-        ListCollection(UpdateMode, assets);
         var subMat = AssetDatabase.FindAssets("t:Material", new[] {"Assets", "Packages"});
         var subMesh = AssetDatabase.FindAssets("t:Mesh", new[] {"Assets", "Packages"});
-        ListCollection(UpdateMode, subMat);
-        ListCollection(UpdateMode, subMesh);
+        List<string> total = new List<string>();
+        total.AddRange(assets);
+        total.AddRange(subMat);
+        total.AddRange(subMesh);
+
+        // ListCollection(UpdateMode, total.ToArray());
+        AssetDatabase.StartAssetEditing();
+        int index = 0;
+        int length = total.Count;
+        EditorApplication.update = delegate()
+        {
+
+            var asset = total[index];
+            ListCollection(UpdateMode, asset);
+            _onRefProcessing = EditorUtility.DisplayCancelableProgressBar("Cache Collection",
+                $"({index}/{length.ToString()})Collecting...{asset}", (float)index / length);
+            index++;
+            if (_onRefProcessing || index >= length)
+            {
+                EditorUtility.ClearProgressBar();
+                EditorApplication.update = null;
+                index = 0;
+                AssetDatabase.StopAssetEditing();
+                AssetDatabase.Refresh();
+            }
+        };
+        // EditorUtility.DisplayCancelableProgressBar("Folder Path Collection", "Collecting...", 95);
+        // FolderCollection();
         EditorUtility.ClearProgressBar();
     }
+    
+    private static void FolderCollection()
+    {
+        _cache.folderRoot = new MFRefLinkCache.DirectoryNest();
+        SubFolderSearch("Assets", ref _cache.folderRoot);
+    }
+
+    private static void SubFolderSearch(string path, ref MFRefLinkCache.DirectoryNest parentNest)
+    {
+        parentNest.localPath = path;
+        var dateTime = Directory.GetLastWriteTime(Application.dataPath.Replace("Assets", "") + path);
+        parentNest.lastTime = dateTime.Ticks;
+        var sub = AssetDatabase.GetSubFolders(path);
+        if (sub != null && sub.Length > 0)
+        {
+            parentNest.subFolder = new MFRefLinkCache.DirectoryNest[sub.Length];
+            for (int i = 0; i < sub.Length; i++)
+            {
+                SubFolderSearch(sub[i], ref parentNest.subFolder[i]);
+            }
+        }
+    }
+    //
+    // [MenuItem("Test/Update")]
+    // public static void UpdateT()
+    // {
+    //     UpdateTimeStamp("Assets", ref _cache.folderRoot);
+    // }
+    // private static void UpdateTimeStamp(string path, ref MFRefLinkCache.DirectoryNest parentNest)
+    // {
+    //     if (parentNest.lastTime <= _cache.timeStamp) return;
+    //     var assets = AssetDatabase.FindAssets("t:object", new[] { path });
+    // }
 
     private static void ListCollection(bool UpdateMode, string[] assets)
     {
-        for (var index = 0; index < assets.Length; index++)
+        
+    }
+
+    private static void ListCollection(bool UpdateMode, string asset)
+    {
+        var path = AssetDatabase.GUIDToAssetPath(asset);
+        var obj = AssetDatabase.LoadAssetAtPath<Object>(path);
+        if (UpdateMode)
         {
-            var asset = assets[index];
-            var path = AssetDatabase.GUIDToAssetPath(asset);
-            var obj = AssetDatabase.LoadAssetAtPath<Object>(path);
-            if (UpdateMode)
+            var data = _cache.refLinkDict.Find(x => x.path == path);
+            if (data == null)
             {
-                var data = _cache.refLinkDict.Find(x => x.path == path);
-                if (data == null)
-                {
-                    data = MFRefLinkData.CreateData(obj);
-                    if (data != null)
-                        // if (sub)
-                        // {
-                        //     _cache.subDict.Add(data);
-                        // }
-                        // else
-                        // {
-                        _cache.refLinkDict.Add(data);
-                        // }
-                }
-                else
-                {
-                    //skip if data exists in dict
-                    // data.UpdateData(obj);
-                }
+                data = MFRefLinkData.CreateData(obj);
+                if (data != null)
+                    // if (sub)
+                    // {
+                    //     _cache.subDict.Add(data);
+                    // }
+                    // else
+                    // {
+                    _cache.refLinkDict.Add(data);
+                // }
             }
             else
             {
-                var data = MFRefLinkData.CreateData(obj);
-                if (data != null)
+                //skip if data exists in dict
+                var lastTime = Directory.GetLastWriteTime(path);
+                if (lastTime.Ticks > _cache.timeStamp)
                 {
-                    // if(sub)
-                    //     _cache.subDict.Add(data);
-                    // else
-                        _cache.refLinkDict.Add(data);
-                    // AssetDatabase.AddObjectToAsset(data, _cache);
+                    Debug.Log($"UpdateLink {data.path}");
+                    //TODO: UpdateLink
+                    UpdateLink(data);
+                    updateCount++;
                 }
             }
-
-            EditorUtility.DisplayCancelableProgressBar("Cache Collection",
-                $"({index}/{assets.Length.ToString()})Collecting...{assets[index]}", (float)index / assets.Length);
+        }
+        else
+        {
+            var data = MFRefLinkData.CreateData(obj);
+            if (data != null)
+            {
+                // if(sub)
+                //     _cache.subDict.Add(data);
+                // else
+                _cache.refLinkDict.Add(data);
+                // AssetDatabase.AddObjectToAsset(data, _cache);
+            }
         }
     }
 
@@ -102,7 +218,7 @@ public class MFRefLinkCore
         if (_cache == null)
         {
             if(EditorUtility.DisplayDialog("Cache not found", "Cache not found, collect cache now?", "Yes", "No"))
-                InitLink();
+                ManualCollect();
             else
                 return null;
         }
@@ -117,7 +233,7 @@ public class MFRefLinkCore
 
     #region LinkAction
 
-    [MenuItem("Moonflow/Utility/RefLink/LinkAction/ShaderMatLink")]
+    // [MenuItem("Moonflow/Utility/RefLink/LinkAction/ShaderMatLink")]
     public static void ShaderMaterialLink()
     {
         var shaderCache = GetFilterCache("Shader");
@@ -157,11 +273,11 @@ public class MFRefLinkCore
         // MFRefLinkCache.SaveCache(_cache);
     }
 
-    [MenuItem("Moonflow/Utility/RefLink/LinkAction/TotalLink(Force)")]
+    // [MenuItem("Moonflow/Utility/RefLink/LinkAction/TotalLink(Force)")]
     public static void TotalLinkForce()
     {
         if(_cache == null || _cache.refLinkDict == null)
-            InitLink();
+            ManualCollect();
         if (_cache.refLinkDict != null)
             for (var index = 0; index < _cache.refLinkDict.Count; index++)
             {
@@ -174,11 +290,11 @@ public class MFRefLinkCore
         TotalLink();
     }
     
-    [MenuItem("Moonflow/Utility/RefLink/LinkAction/TotalLink")]
+    // [MenuItem("Moonflow/Utility/RefLink/LinkAction/TotalLink")]
     public static void TotalLink()
     {
         if(_cache == null || _cache.refLinkDict == null /*|| _cache.subDict == null*/)
-            InitLink();
+            ManualCollect();
         //editor progress bar
         EditorUtility.DisplayProgressBar("Link Data Reference", "Linking...", 0);
 
@@ -194,40 +310,7 @@ public class MFRefLinkCore
         for (var index = 0; index < list.Count; index++)
         {
             var linkData = list[index];
-            var path = AssetDatabase.GUIDToAssetPath(linkData.guid);
-            //get absolute path
-            var absolutePath = Application.dataPath.Replace("Assets", "") + path;
-            //read meta file, which has the same path and same name with asset but with .meta extension
-            var metaPath = absolutePath + ".meta";
-            //read meta file as text
-            var text = System.IO.File.ReadAllText(linkData.refInMeta ? metaPath : absolutePath);
-            //find guids by regex
-            var guids = Regex.Matches(text, @"guid: ([0-9a-fA-F]{32})");
-            //add all guids to depGUID
-            if (linkData.depGUID == null)
-                linkData.depGUID = new HashSet<string>();
-            foreach (Match guid in guids)
-            {
-                string id = guid.Groups[1].Value /*.Replace("guid: ", "");*/;
-                if (id != linkData.guid)
-                    linkData.depGUID.Add(id);
-            }
-
-            //find all dependency assets from dict and add current to their refGUID
-            foreach (var depGuid in linkData.depGUID)
-            {
-                var depData = list.Find(x => x.guid == depGuid);
-                if (depData == null)
-                {
-                    Debug.LogError($"{linkData.name}可能引用了空资源, GUID: {depGuid}");
-                    continue;
-                }
-
-                if (depData.refGUID == null)
-                    depData.refGUID = new HashSet<string>();
-                if (depData.guid != linkData.guid)
-                    depData.refGUID.Add(linkData.guid);
-            }
+            UpdateLink(ref linkData, list);
 
             //editor progress bar
             EditorUtility.DisplayProgressBar("Link Data Reference",
@@ -236,6 +319,84 @@ public class MFRefLinkCore
         }
     }
 
+    private static void UpdateLink(ref MFRefLinkData linkData, List<MFRefLinkData> list, bool forceRefreshDeps = false)
+    {
+        var path = AssetDatabase.GUIDToAssetPath(linkData.guid);
+        //get absolute path
+        var absolutePath = Application.dataPath.Replace("Assets", "") + path;
+        //read meta file, which has the same path and same name with asset but with .meta extension
+        var metaPath = absolutePath + ".meta";
+        //read meta file as text
+        var text = System.IO.File.ReadAllText(linkData.refInMeta ? metaPath : absolutePath);
+        //find guids by regex
+        var guids = Regex.Matches(text, @"guid: ([0-9a-fA-F]{32})");
+        //add all guids to depGUID
+        if (linkData.depGUID == null || forceRefreshDeps)
+            linkData.depGUID = new HashSet<string>();
+        foreach (Match guid in guids)
+        {
+            string id = guid.Groups[1].Value /*.Replace("guid: ", "");*/;
+            if (id != linkData.guid)
+                linkData.depGUID.Add(id);
+        }
+
+        //find all dependency assets from dict and add current to their refGUID
+        foreach (var depGuid in linkData.depGUID)
+        {
+            var depData = list.Find(x => x.guid == depGuid);
+            if (depData == null)
+            {
+                Debug.LogError($"{linkData.name}可能引用了空资源, GUID: {depGuid}");
+                continue;
+            }
+
+            if (depData.refGUID == null)
+                depData.refGUID = new HashSet<string>();
+            if (depData.guid != linkData.guid)
+                depData.refGUID.Add(linkData.guid);
+        }
+    }
+
+    public static void UpdateLink(MFRefLinkData data)
+    {
+        var olddeps = data.depGUID;
+        UpdateLink(ref data, _cache.refLinkDict, true);
+        var newdeps = data.depGUID;
+        if(newdeps == null || newdeps.Count == 0)
+            return;
+        var added = olddeps != null && olddeps.Count != 0 ? newdeps.Except(olddeps) : newdeps;
+        foreach (var guid in added)
+        {
+            var depData = _cache.refLinkDict.Find(x => x.guid == guid);
+            if (depData == null)
+            {
+                Debug.LogError($"{data.name}可能引用了空资源, GUID: {guid}");
+                continue;
+            }
+
+            if (depData.refGUID == null)
+                depData.refGUID = new HashSet<string>();
+            if (depData.guid != data.guid)
+                depData.refGUID.Add(data.guid);
+        }
+        if(olddeps == null || olddeps.Count == 0)
+            return;
+        var deleted = olddeps.Except(newdeps);
+        foreach (var guid in deleted)
+        {
+            var depData = _cache.refLinkDict.Find(x => x.guid == guid);
+            if (depData == null)
+            {
+                Debug.LogError($"{data.name}可能引用了空资源, GUID: {guid}");
+                continue;
+            }
+
+            if (depData.refGUID == null)
+                depData.refGUID = new HashSet<string>();
+            if (depData.guid != data.guid)
+                depData.refGUID.Remove(data.guid);
+        }
+    }
     #endregion
     
 }

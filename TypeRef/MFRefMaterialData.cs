@@ -1,4 +1,3 @@
-
 using Moonflow.MFAssetTools.MFRefLink;
 
 public class MFRefMaterialData : MFRefLinkData

@@ -1,21 +1,30 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Moonflow.Core;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Moonflow.MFAssetTools.MFRefLink
 {
     public class MFRefLinkCache : ScriptableObject
     {
-
+        [Serializable]
+        public struct DirectoryNest
+        {
+            public string localPath;
+            public long lastTime;
+            public DirectoryNest[] subFolder;
+        }
         public List<MFRefLinkData> refLinkDict;
+        public DirectoryNest folderRoot;
         // public List<MFRefLinkData> subDict;
         [NonSerialized]public HashSet<MFRefLinkData> refLinkSet;
         // [NonSerialized]public HashSet<MFRefLinkData> subSet;
         [NonSerialized]public static MFRefLinkCache cache;
         //时间戳
-        public static long timeStamp;
+        public long timeStamp;
         //static dictionary path, has the same hierarchy of Assets folder
         private static string dictPath = "Assets/Cache/RefLinkDict.asset";
 
@@ -36,9 +45,6 @@ namespace Moonflow.MFAssetTools.MFRefLink
         //save Cache
         public static void SaveCache(MFRefLinkCache cache)
         {
-            //set time stamp
-            timeStamp = System.DateTime.Now.Ticks;
-
             //chech if directory exists
             string dir = Path.GetDirectoryName(dictPath);
             if (!Directory.Exists(dir))
@@ -60,6 +66,10 @@ namespace Moonflow.MFAssetTools.MFRefLink
 
             MFRefLinkCache newCache = ScriptableObject.CreateInstance<MFRefLinkCache>();
             newCache.refLinkDict = new List<MFRefLinkData>(tempDict);
+            newCache.folderRoot = cache.folderRoot;
+            
+            //set time stamp
+            newCache.timeStamp = DateTime.Now.Ticks;
             // newCache.subDict = new List<MFRefLinkData>(subTempDict);
             //create asset
             AssetDatabase.CreateAsset(newCache, dictPath);
