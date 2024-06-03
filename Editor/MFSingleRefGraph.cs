@@ -109,6 +109,11 @@ namespace Tools.Editor.MFAssetTools.MFRefLink.Editor
                         {
                             EditorGUILayout.LabelField("No Deps");
                         }
+                        if(GUILayout.Button("Copy List"))
+                        {
+                            string matNameList = CopyList(deps);
+                            EditorGUIUtility.systemCopyBuffer = matNameList;
+                        }
                         EditorGUIUtility.labelWidth = normalLabelWidth;
                     }
 
@@ -191,11 +196,28 @@ namespace Tools.Editor.MFAssetTools.MFRefLink.Editor
                         {
                             EditorGUILayout.LabelField("No Refs");
                         }
+                        if(GUILayout.Button("Copy List"))
+                        {
+                            string matNameList = CopyList(refs);
+                            EditorGUIUtility.systemCopyBuffer = matNameList;
+                        }
                         EditorGUIUtility.labelWidth = normalLabelWidth;
                     }
 
                 }
             }
+        }
+
+        private string CopyList(Object[] objs)
+        {
+            string nameList = "";
+            if(objs == null || objs.Length == 0)
+                return nameList;
+            foreach (var obj in objs)
+            {
+                nameList += obj.name + "\n";
+            }
+            return nameList;
         }
 
         private float TotalCapacitySum(MFRefLinkData mfRefLinkData)
