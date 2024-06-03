@@ -80,7 +80,6 @@ public class MFRefLinkCore
             _cache = ScriptableObject.CreateInstance<MFRefLinkCache>();
             _cache.CleanCache();
             CacheCollection();
-            MFRefLinkCache.SaveCache(_cache);
         }
         else
         {
@@ -119,6 +118,8 @@ public class MFRefLinkCore
                 EditorUtility.ClearProgressBar();
                 EditorApplication.update = null;
                 index = 0;
+                
+                MFRefLinkCache.SaveCache(_cache);
                 AssetDatabase.StopAssetEditing();
                 AssetDatabase.Refresh();
             }
@@ -126,6 +127,7 @@ public class MFRefLinkCore
         // EditorUtility.DisplayCancelableProgressBar("Folder Path Collection", "Collecting...", 95);
         // FolderCollection();
         EditorUtility.ClearProgressBar();
+        
     }
     
     private static void FolderCollection()
@@ -273,7 +275,7 @@ public class MFRefLinkCore
         // MFRefLinkCache.SaveCache(_cache);
     }
 
-    // [MenuItem("Moonflow/Utility/RefLink/LinkAction/TotalLink(Force)")]
+    [MenuItem("Moonflow/Utility/RefLink/LinkAction/TotalLink(Force)")]
     public static void TotalLinkForce()
     {
         if(_cache == null || _cache.refLinkDict == null)
@@ -290,7 +292,7 @@ public class MFRefLinkCore
         TotalLink();
     }
     
-    // [MenuItem("Moonflow/Utility/RefLink/LinkAction/TotalLink")]
+    [MenuItem("Moonflow/Utility/RefLink/LinkAction/TotalLink")]
     public static void TotalLink()
     {
         if(_cache == null || _cache.refLinkDict == null /*|| _cache.subDict == null*/)
