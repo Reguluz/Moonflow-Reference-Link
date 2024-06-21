@@ -14,30 +14,6 @@ public class MFRefLinkCore
     private static int updateCount;
     private static MFRefLinkCache _cache;
     private static bool _onRefProcessing;
-    
-    [InitializeOnLoadMethod]
-    public static void InitPlugin()
-    {
-        var targetGroup = EditorUserBuildSettings.selectedBuildTargetGroup;
-        string defineSymbol = "MF_REF_LINK";
-        string currData = PlayerSettings.GetScriptingDefineSymbolsForGroup( targetGroup );
-        if( !currData.Contains( defineSymbol ) )
-        {
-            if( string.IsNullOrEmpty( currData ) )
-            {
-                PlayerSettings.SetScriptingDefineSymbolsForGroup( targetGroup , defineSymbol );
-            }
-            else
-            {
-                if( !currData[ currData.Length - 1 ].Equals( ';' ) )
-                {
-                    currData += ';';
-                }
-                currData += defineSymbol;
-                PlayerSettings.SetScriptingDefineSymbolsForGroup( targetGroup , currData );
-            }
-        }
-    }
 
     public static MFRefLinkData GetRefData(string guid)
     {
@@ -80,6 +56,7 @@ public class MFRefLinkCore
             _cache = ScriptableObject.CreateInstance<MFRefLinkCache>();
             _cache.CleanCache();
             CacheCollection();
+            MFRefLinkCache.SaveCache(_cache);
         }
         else
         {
@@ -87,7 +64,7 @@ public class MFRefLinkCore
             CacheCollection(true);
             Debug.Log($"UpdateCount: {updateCount.ToString()}");
         }
-        TotalLinkForce();
+        // TotalLinkForce();
     }
 
     public static void CacheCollection(bool UpdateMode = false)
@@ -118,8 +95,6 @@ public class MFRefLinkCore
                 EditorUtility.ClearProgressBar();
                 EditorApplication.update = null;
                 index = 0;
-                
-                MFRefLinkCache.SaveCache(_cache);
                 AssetDatabase.StopAssetEditing();
                 AssetDatabase.Refresh();
             }
@@ -127,7 +102,6 @@ public class MFRefLinkCore
         // EditorUtility.DisplayCancelableProgressBar("Folder Path Collection", "Collecting...", 95);
         // FolderCollection();
         EditorUtility.ClearProgressBar();
-        
     }
     
     private static void FolderCollection()
@@ -194,7 +168,7 @@ public class MFRefLinkCore
                 var lastTime = Directory.GetLastWriteTime(path);
                 if (lastTime.Ticks > _cache.timeStamp)
                 {
-                    Debug.Log($"UpdateLink {data.path}");
+                    MFDebug.Log($"UpdateLink {data.path}");
                     //TODO: UpdateLink
                     UpdateLink(data);
                     updateCount++;
@@ -292,7 +266,7 @@ public class MFRefLinkCore
         TotalLink();
     }
     
-    [MenuItem("Moonflow/Utility/RefLink/LinkAction/TotalLink")]
+    // [MenuItem("Moonflow/Utility/RefLink/LinkAction/TotalLink")]
     public static void TotalLink()
     {
         if(_cache == null || _cache.refLinkDict == null /*|| _cache.subDict == null*/)
@@ -348,7 +322,7 @@ public class MFRefLinkCore
             var depData = list.Find(x => x.guid == depGuid);
             if (depData == null)
             {
-                Debug.LogError($"{linkData.name}可能引用了空资源, GUID: {depGuid}");
+                MFDebug.LogError($"{linkData.name}可能引用了空资源, GUID: {depGuid}");
                 continue;
             }
 
@@ -372,7 +346,7 @@ public class MFRefLinkCore
             var depData = _cache.refLinkDict.Find(x => x.guid == guid);
             if (depData == null)
             {
-                Debug.LogError($"{data.name}可能引用了空资源, GUID: {guid}");
+                MFDebug.LogError($"{data.name}可能引用了空资源, GUID: {guid}");
                 continue;
             }
 
@@ -389,7 +363,7 @@ public class MFRefLinkCore
             var depData = _cache.refLinkDict.Find(x => x.guid == guid);
             if (depData == null)
             {
-                Debug.LogError($"{data.name}可能引用了空资源, GUID: {guid}");
+                MFDebug.LogError($"{data.name}可能引用了空资源, GUID: {guid}");
                 continue;
             }
 

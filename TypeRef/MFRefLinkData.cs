@@ -87,7 +87,7 @@ namespace Moonflow.MFAssetTools.MFRefLink
                     break;
                 
                 default:
-                    Debug.LogWarning("Unknow type of asset: " + extension);
+                    MFDebug.LogWarning("Unknow type of asset: " + extension);
                     break;
             }
 
@@ -97,6 +97,7 @@ namespace Moonflow.MFAssetTools.MFRefLink
                 data.guid = AssetDatabase.AssetPathToGUID(data.path);
                 //set data name as asset name
                 data.name = Path.GetFileNameWithoutExtension(data.path);
+                data.hideFlags = HideFlags.HideInInspector;
                 
                 string aPath = Path.GetFullPath(path);
                 FileInfo fi = new FileInfo(aPath);

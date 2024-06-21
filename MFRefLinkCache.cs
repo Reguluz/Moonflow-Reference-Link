@@ -52,8 +52,7 @@ namespace Moonflow.MFAssetTools.MFRefLink
                 Directory.CreateDirectory(dir);
             }
 
-            MFRefLinkData[] tempDict = new MFRefLinkData[cache.refLinkDict.Count];
-            cache.refLinkDict.CopyTo(tempDict);
+            
             
             // MFRefLinkData[] subTempDict = new MFRefLinkData[cache.subDict.Count];
             // cache.subDict.CopyTo(subTempDict);
@@ -62,23 +61,31 @@ namespace Moonflow.MFAssetTools.MFRefLink
             if (File.Exists(dictPath))
             {
                 AssetDatabase.DeleteAsset(dictPath);
+                MFRefLinkData[] tempDict = new MFRefLinkData[cache.refLinkDict.Count];
+                cache.refLinkDict.CopyTo(tempDict);
+                MFRefLinkCache newCache = ScriptableObject.CreateInstance<MFRefLinkCache>();
+                newCache.refLinkDict = new List<MFRefLinkData>(tempDict);
+                newCache.folderRoot = cache.folderRoot;
+            
+                //set time stamp
+                newCache.timeStamp = DateTime.Now.Ticks;
+                // newCache.subDict = new List<MFRefLinkData>(subTempDict);
+                //create asset
+                AssetDatabase.CreateAsset(newCache, dictPath);
+                EditorUtility.SetDirty(newCache);
+                foreach (var data in newCache.refLinkDict)
+                {
+                    data.hideFlags =/* HideFlags.HideInInspector | */HideFlags.HideInHierarchy;
+                    AssetDatabase.AddObjectToAsset(data, newCache);
+                }
+            }
+            else
+            {
+                AssetDatabase.CreateAsset(cache, dictPath);
+                EditorUtility.SetDirty(cache);
             }
 
-            MFRefLinkCache newCache = ScriptableObject.CreateInstance<MFRefLinkCache>();
-            newCache.refLinkDict = new List<MFRefLinkData>(tempDict);
-            newCache.folderRoot = cache.folderRoot;
             
-            //set time stamp
-            newCache.timeStamp = DateTime.Now.Ticks;
-            // newCache.subDict = new List<MFRefLinkData>(subTempDict);
-            //create asset
-            AssetDatabase.CreateAsset(newCache, dictPath);
-            EditorUtility.SetDirty(newCache);
-            foreach (var data in newCache.refLinkDict)
-            {
-                data.hideFlags =/* HideFlags.HideInInspector | */HideFlags.HideInHierarchy;
-                AssetDatabase.AddObjectToAsset(data, newCache);
-            }
             
             // foreach (var data in newCache.subDict)
             // {
@@ -98,7 +105,7 @@ namespace Moonflow.MFAssetTools.MFRefLink
                 cache = AssetDatabase.LoadAssetAtPath<MFRefLinkCache>(dictPath);
                 if (cache == null)
                 {
-                    Debug.LogWarning("MFRefLinkCache.LoadCache: " + dictPath + " not found, create new one.");
+                    MFDebug.LogWarning("MFRefLinkCache.LoadCache: " + dictPath + " not found, create new one.");
                     return null;
                 }
                 //translate object to dictionary
