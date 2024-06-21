@@ -104,27 +104,27 @@ public class MFRefLinkCore
         EditorUtility.ClearProgressBar();
     }
     
-    private static void FolderCollection()
-    {
-        _cache.folderRoot = new MFRefLinkCache.DirectoryNest();
-        SubFolderSearch("Assets", ref _cache.folderRoot);
-    }
-
-    private static void SubFolderSearch(string path, ref MFRefLinkCache.DirectoryNest parentNest)
-    {
-        parentNest.localPath = path;
-        var dateTime = Directory.GetLastWriteTime(Application.dataPath.Replace("Assets", "") + path);
-        parentNest.lastTime = dateTime.Ticks;
-        var sub = AssetDatabase.GetSubFolders(path);
-        if (sub != null && sub.Length > 0)
-        {
-            parentNest.subFolder = new MFRefLinkCache.DirectoryNest[sub.Length];
-            for (int i = 0; i < sub.Length; i++)
-            {
-                SubFolderSearch(sub[i], ref parentNest.subFolder[i]);
-            }
-        }
-    }
+    // private static void FolderCollection()
+    // {
+    //     _cache.folderRoot = new MFRefLinkCache.DirectoryNest();
+    //     SubFolderSearch("Assets", ref _cache.folderRoot);
+    // }
+    //
+    // private static void SubFolderSearch(string path, ref MFRefLinkCache.DirectoryNest parentNest)
+    // {
+    //     parentNest.localPath = path;
+    //     var dateTime = Directory.GetLastWriteTime(Application.dataPath.Replace("Assets", "") + path);
+    //     parentNest.lastTime = dateTime.Ticks;
+    //     var sub = AssetDatabase.GetSubFolders(path);
+    //     if (sub != null && sub.Length > 0)
+    //     {
+    //         parentNest.subFolder = new MFRefLinkCache.DirectoryNest[sub.Length];
+    //         for (int i = 0; i < sub.Length; i++)
+    //         {
+    //             SubFolderSearch(sub[i], ref parentNest.subFolder[i]);
+    //         }
+    //     }
+    // }
     //
     // [MenuItem("Test/Update")]
     // public static void UpdateT()

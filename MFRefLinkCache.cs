@@ -10,15 +10,15 @@ namespace Moonflow.MFAssetTools.MFRefLink
 {
     public class MFRefLinkCache : ScriptableObject
     {
-        [Serializable]
-        public struct DirectoryNest
-        {
-            public string localPath;
-            public long lastTime;
-            public DirectoryNest[] subFolder;
-        }
+        // [Serializable]
+        // public struct DirectoryNest
+        // {
+        //     public string localPath;
+        //     public long lastTime;
+        //     public DirectoryNest[] subFolder;
+        // }
         public List<MFRefLinkData> refLinkDict;
-        public DirectoryNest folderRoot;
+        // public DirectoryNest folderRoot;
         // public List<MFRefLinkData> subDict;
         [NonSerialized]public HashSet<MFRefLinkData> refLinkSet;
         // [NonSerialized]public HashSet<MFRefLinkData> subSet;
@@ -65,7 +65,7 @@ namespace Moonflow.MFAssetTools.MFRefLink
                 cache.refLinkDict.CopyTo(tempDict);
                 MFRefLinkCache newCache = ScriptableObject.CreateInstance<MFRefLinkCache>();
                 newCache.refLinkDict = new List<MFRefLinkData>(tempDict);
-                newCache.folderRoot = cache.folderRoot;
+                // newCache.folderRoot = cache.folderRoot;
             
                 //set time stamp
                 newCache.timeStamp = DateTime.Now.Ticks;
