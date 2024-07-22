@@ -8,7 +8,7 @@ namespace Tools.Editor.MFAssetTools.MFRefLink.Editor
     {
         private string _guid = "";
         //create window
-        [MenuItem("Moonflow/Tools/Guid Searcher")]
+        [MenuItem("Tools/Moonflow/Tools/Guid Searcher")]
         public static void ShowWindow()
         {
             var _ins = GetWindow<MFGuidSearcher>("Guid Searcher");

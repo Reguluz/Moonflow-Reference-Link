@@ -6,7 +6,7 @@ namespace Tools.Editor.MFAssetTools.MFRefLink.Editor
     {
         private const string DefineSymbol = "MFRefLink";
         
-        [MenuItem("Moonflow/Utility/RefLink/Add Define Symbol")]
+        [MenuItem("Tools/Moonflow/Utility/RefLink/Add Define Symbol")]
         public static void AddDefineSymbol()
         {
             //add define symbol to unity project
@@ -19,7 +19,7 @@ namespace Tools.Editor.MFAssetTools.MFRefLink.Editor
             PlayerSettings.SetScriptingDefineSymbolsForGroup(EditorUserBuildSettings.selectedBuildTargetGroup, symbols);
         }
         
-        [MenuItem("Moonflow/Utility/RefLink/Remove Define Symbol")]
+        [MenuItem("Tools/Moonflow/Utility/RefLink/Remove Define Symbol")]
         public static void RemoveDefineSymbol()
         {
             //remove define symbol to unity project

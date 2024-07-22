@@ -25,13 +25,13 @@ public class MFRefLinkCore
         return GetRefData(guid);
     }
 
-    [MenuItem("Moonflow/Utility/RefLink/Setting/Enable Auto Update")]
+    [MenuItem("Tools/Moonflow/Utility/RefLink/Setting/Enable Auto Update")]
     public static void EnableAutoUpdate()
     {
         //unity editor callback: after asset import
         AssetDatabase.importPackageCompleted += AutoUpdate;
     }
-    [MenuItem("Moonflow/Utility/RefLink/Setting/Disable Auto Update")]
+    [MenuItem("Tools/Moonflow/Utility/RefLink/Setting/Disable Auto Update")]
     public static void DisableAutoUpdate()
     {
         AssetDatabase.importPackageCompleted -= AutoUpdate;
@@ -46,7 +46,7 @@ public class MFRefLinkCore
         ManualCollect();
     }
 
-    [MenuItem("Moonflow/Utility/RefLink/Collect")]
+    [MenuItem("Tools/Moonflow/Utility/RefLink/Collect")]
     public static void ManualCollect()
     {
         //check if cache exists
@@ -209,7 +209,7 @@ public class MFRefLinkCore
 
     #region LinkAction
 
-    // [MenuItem("Moonflow/Utility/RefLink/LinkAction/ShaderMatLink")]
+    // [MenuItem("Tools/Moonflow/Utility/RefLink/LinkAction/ShaderMatLink")]
     public static void ShaderMaterialLink()
     {
         var shaderCache = GetFilterCache("Shader");
@@ -249,7 +249,7 @@ public class MFRefLinkCore
         // MFRefLinkCache.SaveCache(_cache);
     }
 
-    [MenuItem("Moonflow/Utility/RefLink/LinkAction/TotalLink(Force)")]
+    [MenuItem("Tools/Moonflow/Utility/RefLink/LinkAction/TotalLink(Force)")]
     public static void TotalLinkForce()
     {
         if(_cache == null || _cache.refLinkDict == null)
@@ -266,7 +266,7 @@ public class MFRefLinkCore
         TotalLink();
     }
     
-    // [MenuItem("Moonflow/Utility/RefLink/LinkAction/TotalLink")]
+    // [MenuItem("Tools/Moonflow/Utility/RefLink/LinkAction/TotalLink")]
     public static void TotalLink()
     {
         if(_cache == null || _cache.refLinkDict == null /*|| _cache.subDict == null*/)
