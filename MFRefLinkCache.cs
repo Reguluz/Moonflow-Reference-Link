@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Moonflow.Core;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -105,7 +104,7 @@ namespace Moonflow.MFAssetTools.MFRefLink
                 cache = AssetDatabase.LoadAssetAtPath<MFRefLinkCache>(dictPath);
                 if (cache == null)
                 {
-                    MFDebug.LogWarning("MFRefLinkCache.LoadCache: " + dictPath + " not found, create new one.");
+                    Debug.LogWarning("MFRefLinkCache.LoadCache: " + dictPath + " not found, create new one.");
                     return null;
                 }
                 //translate object to dictionary

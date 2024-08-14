@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Moonflow.Core;
 using Moonflow.MFAssetTools.MFRefLink;
 using UnityEditor;
 using UnityEngine;
@@ -168,7 +167,7 @@ public class MFRefLinkCore
                 var lastTime = Directory.GetLastWriteTime(path);
                 if (lastTime.Ticks > _cache.timeStamp)
                 {
-                    MFDebug.Log($"UpdateLink {data.path}");
+                    Debug.Log($"UpdateLink {data.path}");
                     //TODO: UpdateLink
                     UpdateLink(data);
                     updateCount++;
@@ -322,7 +321,7 @@ public class MFRefLinkCore
             var depData = list.Find(x => x.guid == depGuid);
             if (depData == null)
             {
-                MFDebug.LogError($"{linkData.name}可能引用了空资源, GUID: {depGuid}");
+                Debug.LogError($"{linkData.name}可能引用了空资源, GUID: {depGuid}");
                 continue;
             }
 
@@ -346,7 +345,7 @@ public class MFRefLinkCore
             var depData = _cache.refLinkDict.Find(x => x.guid == guid);
             if (depData == null)
             {
-                MFDebug.LogError($"{data.name}可能引用了空资源, GUID: {guid}");
+                Debug.LogError($"{data.name}可能引用了空资源, GUID: {guid}");
                 continue;
             }
 
@@ -363,7 +362,7 @@ public class MFRefLinkCore
             var depData = _cache.refLinkDict.Find(x => x.guid == guid);
             if (depData == null)
             {
-                MFDebug.LogError($"{data.name}可能引用了空资源, GUID: {guid}");
+                Debug.LogError($"{data.name}可能引用了空资源, GUID: {guid}");
                 continue;
             }
 

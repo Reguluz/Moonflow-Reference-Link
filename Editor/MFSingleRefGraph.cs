@@ -89,7 +89,7 @@ namespace Tools.Editor.MFAssetTools.MFRefLink.Editor
                     EditorGUILayout.LabelField("Refs", EditorStyles.boldLabel, GUILayout.Width(297));
                 }
 
-                MFEditorUI.DivideLine(Color.white);
+                MFToolsEditorUI.DivideLine(Color.white);
 
                 int depCount = deps?.Length ?? 1;
                 int refCount = refs?.Length ?? 1;
@@ -103,7 +103,7 @@ namespace Tools.Editor.MFAssetTools.MFRefLink.Editor
                         EditorGUIUtility.labelWidth = 20;
                         if (deps is { Length: > 0 })
                         {
-                            MFEditorUI.DrawFlipList<Object>(DrawAsset, deps.ToList(), ref pageL, 20);
+                            MFToolsEditorUI.DrawFlipList<Object>(DrawAsset, deps.ToList(), ref pageL, 20);
                         }
                         else
                         {
@@ -162,7 +162,7 @@ namespace Tools.Editor.MFAssetTools.MFRefLink.Editor
                         
 
                         EditorGUILayout.LabelField("ErrorGUID", EditorStyles.boldLabel, GUILayout.Width(297));
-                        MFEditorUI.DivideLine(Color.gray);
+                        MFToolsEditorUI.DivideLine(Color.gray);
                         if (errorGUID is { Count: > 0 })
                         {
                             using (new EditorGUILayout.VerticalScope("box", GUILayout.Width(297),
@@ -190,7 +190,7 @@ namespace Tools.Editor.MFAssetTools.MFRefLink.Editor
                         EditorGUIUtility.labelWidth = 20;
                         if (refs is { Length: > 0 })
                         {
-                            MFEditorUI.DrawFlipList<Object>(DrawAsset, refs.ToList(), ref pageR, 20);
+                            MFToolsEditorUI.DrawFlipList<Object>(DrawAsset, refs.ToList(), ref pageR, 20);
                         }
                         else
                         {

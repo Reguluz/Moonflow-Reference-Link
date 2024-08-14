@@ -17,7 +17,7 @@ namespace Tools.Editor.MFAssetTools.MFRefLink.Editor
 
         public override void OnInspectorGUI()
         {
-            MFEditorUI.DrawFlipList(_target.refLinkDict,ref index, 50);
+            MFToolsEditorUI.DrawFlipList(_target.refLinkDict,ref index, 50);
         }
     }
 }

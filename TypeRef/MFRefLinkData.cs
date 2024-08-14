@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.IO;
-using Moonflow.Core;
 using UnityEditor;
 using UnityEditor.VersionControl;
 using UnityEngine;
@@ -87,7 +86,7 @@ namespace Moonflow.MFAssetTools.MFRefLink
                     break;
                 
                 default:
-                    MFDebug.LogWarning("Unknow type of asset: " + extension);
+                    Debug.LogWarning("Unknow type of asset: " + extension);
                     break;
             }
 
