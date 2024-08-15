@@ -2,10 +2,8 @@
     "name": "MFRefLink",
     "rootNamespace": "",
     "references": [
-        "GUID:32cd36deaa324e90ad7098ac9a2eeb78",
-        "GUID:ac8fe4f15c244f20b9905f9de46f4bc3",
-        "GUID:343deaaf83e0cee4ca978e7df0b80d21",
-        "GUID:116931f70165d2a4c8716434b7714f3d"
+        "UnityEditor.UI",
+        "MFToolsCore"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
