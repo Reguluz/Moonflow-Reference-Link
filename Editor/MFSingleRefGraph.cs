@@ -84,9 +84,9 @@ namespace Tools.Editor.MFAssetTools.MFRefLink.Editor
                 //draw three vertical list, left is deps, middle is center, right is refs
                 using (new EditorGUILayout.HorizontalScope(GUILayout.Width(900)))
                 {
-                    EditorGUILayout.LabelField("Deps", EditorStyles.boldLabel, GUILayout.Width(297));
-                    EditorGUILayout.LabelField("Obj", EditorStyles.boldLabel, GUILayout.Width(297));
-                    EditorGUILayout.LabelField("Refs", EditorStyles.boldLabel, GUILayout.Width(297));
+                    EditorGUILayout.LabelField(MFToolsLang.isCN?"引用":"Deps", EditorStyles.boldLabel, GUILayout.Width(297));
+                    EditorGUILayout.LabelField(MFToolsLang.isCN?"对象":"Obj", EditorStyles.boldLabel, GUILayout.Width(297));
+                    EditorGUILayout.LabelField(MFToolsLang.isCN?"被引用":"Refs", EditorStyles.boldLabel, GUILayout.Width(297));
                 }
 
                 MFToolsEditorUI.DivideLine(Color.white);
@@ -107,9 +107,9 @@ namespace Tools.Editor.MFAssetTools.MFRefLink.Editor
                         }
                         else
                         {
-                            EditorGUILayout.LabelField("No Deps");
+                            EditorGUILayout.LabelField(MFToolsLang.isCN?"该资产没有引用到其他对象":"No Deps");
                         }
-                        if(GUILayout.Button("Copy List"))
+                        if(GUILayout.Button(MFToolsLang.isCN?"复制列表":"Copy List"))
                         {
                             string matNameList = CopyList(deps);
                             EditorGUIUtility.systemCopyBuffer = matNameList;
@@ -126,7 +126,7 @@ namespace Tools.Editor.MFAssetTools.MFRefLink.Editor
                         {
                             EditorGUIUtility.labelWidth = 50;
                             EditorGUILayout.LabelField("GUID", center.guid, GUILayout.Width(247));
-                            if (GUILayout.Button("Copy", GUILayout.Width(50)))
+                            if (GUILayout.Button(MFToolsLang.isCN?"复制":"Copy", GUILayout.Width(50)))
                             {
                                 EditorGUIUtility.systemCopyBuffer = center.guid;
                             }
@@ -135,14 +135,14 @@ namespace Tools.Editor.MFAssetTools.MFRefLink.Editor
 
                         float cap = center.capacity;
                         var suffix = CapacityUnitConversion(ref cap);
-                        EditorGUILayout.LabelField("Capacity: ", $"{cap} {suffix}");
+                        EditorGUILayout.LabelField(MFToolsLang.isCN?"容量":"Capacity: ", $"{cap} {suffix}");
                         using (new EditorGUILayout.HorizontalScope(GUILayout.Width(297)))
                         {
                             EditorGUIUtility.labelWidth = 50;
-                            EditorGUILayout.LabelField("Estimate Ref Capacity: ");
+                            EditorGUILayout.LabelField(MFToolsLang.isCN?"估算容量":"Estimate Ref Capacity: ");
                             if (center.totalCapacity == 0)
                             {
-                                if (GUILayout.Button("Calculate"))
+                                if (GUILayout.Button(MFToolsLang.isCN?"计算":"Calculate"))
                                 {
                                     center.totalCapacity = TotalCapacitySum(center);
                                 }
@@ -152,7 +152,7 @@ namespace Tools.Editor.MFAssetTools.MFRefLink.Editor
                                 var trc = center.totalCapacity;
                                 var trcSuffix = CapacityUnitConversion(ref trc);
                                 EditorGUILayout.LabelField($"{trc} {trcSuffix}");
-                                if (GUILayout.Button("Re-Calculate"))
+                                if (GUILayout.Button(MFToolsLang.isCN?"重新计算":"Re-Calculate"))
                                 {
                                     center.totalCapacity = TotalCapacitySum(center);
                                 }
@@ -161,7 +161,7 @@ namespace Tools.Editor.MFAssetTools.MFRefLink.Editor
                         }
                         
 
-                        EditorGUILayout.LabelField("ErrorGUID", EditorStyles.boldLabel, GUILayout.Width(297));
+                        EditorGUILayout.LabelField(MFToolsLang.isCN?"错误的GUID":"ErrorGUID", EditorStyles.boldLabel, GUILayout.Width(297));
                         MFToolsEditorUI.DivideLine(Color.gray);
                         if (errorGUID is { Count: > 0 })
                         {
@@ -194,9 +194,9 @@ namespace Tools.Editor.MFAssetTools.MFRefLink.Editor
                         }
                         else
                         {
-                            EditorGUILayout.LabelField("No Refs");
+                            EditorGUILayout.LabelField(MFToolsLang.isCN?"该资产没有被任何其他对象引用":"No Refs");
                         }
-                        if(GUILayout.Button("Copy List"))
+                        if(GUILayout.Button(MFToolsLang.isCN?"复制列表":"Copy List"))
                         {
                             string matNameList = CopyList(refs);
                             EditorGUIUtility.systemCopyBuffer = matNameList;

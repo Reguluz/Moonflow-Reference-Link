@@ -11,7 +11,7 @@ namespace Tools.Editor.MFAssetTools.MFRefLink.Editor
         [MenuItem("Tools/Moonflow/Tools/Guid Searcher")]
         public static void ShowWindow()
         {
-            var _ins = GetWindow<MFGuidSearcher>("Guid Searcher");
+            var _ins = GetWindow<MFGuidSearcher>(MFToolsLang.isCN?"GUID搜索":"Guid Searcher");
             _ins.minSize = new Vector2(400, 30);
             _ins.maxSize = new Vector2(400, 30);
         }
@@ -21,7 +21,7 @@ namespace Tools.Editor.MFAssetTools.MFRefLink.Editor
             using (new EditorGUILayout.HorizontalScope())
             {
                 _guid = EditorGUILayout.TextField("Guid", _guid);
-                if (GUILayout.Button("Search"))
+                if (GUILayout.Button(MFToolsLang.isCN?"搜索":"Search"))
                 {
                     var path = AssetDatabase.GUIDToAssetPath(_guid);
                     if (path != null)
