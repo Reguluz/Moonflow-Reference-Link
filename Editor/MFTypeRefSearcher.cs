@@ -9,7 +9,7 @@ namespace Tools.Editor.MFAssetTools.MFRefLink.Editor
     public class MFTypeRefSearcher : EditorWindow
     {
         //create window
-        [MenuItem("Tools/Moonflow/Tools/Type Ref Searcher")]
+        [MenuItem("Tools/Moonflow/Utility/RefLink/Type Ref Searcher")]
         public static void ShowWindow()
         {
             var _ins = GetWindow<MFTypeRefSearcher>(MFToolsLang.isCN?"类型引用搜索":"Type Ref Searcher");
